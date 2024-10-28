@@ -53,11 +53,11 @@
     <div class="image-container">
         <img src="data:image/png;base64,{{ plot_url }}" alt="Training History">
     </div>
-    <button class="btn-save" id="save-model-button" onclick="downloadModel('your_model_filename.h5')">Save Model</button>
+    <button class="btn-save" id="save-model-button" onclick="downloadModel('model_hist\\diabetes.csv_model.keras')">Save Model</button>
 
     <script>
         function downloadModel(filename) {
-            window.location.href = `/download/${filename}`;
+            window.location.href = `/Downloads/${filename}`;
         }
     </script>
 </body>

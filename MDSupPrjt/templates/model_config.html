@@ -494,6 +494,13 @@
                   data: JSON.stringify(formData),
                   success: function (response) {
                       alert(response.message);
+                        // Check if downloads are available in the response
+        if (response.downloads) {
+            $('#downloadLinks').html(`
+                <a href="${response.downloads.model}" download="trained_model.keras">Télécharger le Modèle</a><br>
+                <a href="${response.downloads.history}" download="training_history.csv">Télécharger l'Historique</a>
+            `);
+        }
                   },
                   error: function (error) {
                       console.error("Error:", error);
@@ -501,15 +508,6 @@
                   }
               });
             }
-            // Assuming you're using jQuery to handle the response
-            $.post('/MDSupPrjt/train_model_route', data, function(response) {
-                if (response.downloads) {
-                    $('#downloadLinks').html(`
-                        <a href="${response.downloads.model}" download>Download Model</a><br>
-                        <a href="${response.downloads.history}" download>Download History</a>
-                    `);
-                }
-            });
 
     </script>
  
