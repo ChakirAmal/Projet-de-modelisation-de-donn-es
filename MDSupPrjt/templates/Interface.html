@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Neural Network Trainer</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <style>
+      body {
+          background-color: #f8f9fa; /* Matte white background */
+          color: #333333; /* Darker text for better contrast */
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          position: relative;
+      }
+
+      .overlay {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(255, 255, 255, 0.8); /* Slightly transparent white overlay */
+      }
+
+      /* Custom CSS animations */
+      .fade-in {
+          animation: fadeIn 1s ease-in-out;
+      }
+
+      @keyframes fadeIn {
+          from {
+              opacity: 0;
+              transform: translateY(30px);
+          }
+          to {
+              opacity: 1;
+              transform: translateY(0);
+          }
+      }
+
+      /* Button styles */
+      .btn-hover {
+          background-color: #007bff; /* Soft blue */
+          border: none;
+          color: white;
+          border-radius: 1.5rem;
+          transition: all 0.3s ease;
+          padding: 10px 20px; /* Extra padding for buttons */
+      }
+
+      .btn-hover:hover {
+          background-color: #0056b3; /* Darker blue */
+          transform: scale(1.05);
+          box-shadow: 0 4px 20px rgba(0, 123, 255, 0.5);
+      }
+
+      /* Card styles */
+      .card {
+          border: none;
+          border-radius: 1rem;
+          background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white */
+          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); /* Add shadow to cards */
+      }
+
+      .card-hover:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      }
+
+      .card-title {
+          color: #343a40;
+          font-weight: bold;
+          font-size: 1.5rem; /* Increase card title size */
+      }
+
+      /* Animation for flash messages */
+      .alert {
+          animation: slideDown 0.5s ease-in-out;
+          border-radius: 0.5rem;
+      }
+
+      @keyframes slideDown {
+          from {
+              transform: translateY(-50%);
+              opacity: 0;
+          }
+          to {
+              transform: translateY(0);
+              opacity: 1;
+          }
+      }
+
+      /* List styles */
+      .list-group-item {
+          transition: background-color 0.3s ease, transform 0.3s ease;
+          border-radius: 0.5rem; /* Rounded corners for list items */
+      }
+
+      .list-group-item:hover {
+          background-color: #e9ecef; /* Light gray background on hover */
+          transform: translateY(-2px);
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+          .container {
+              padding: 15px;
+          }
+          .card-title {
+              font-size: 1.25rem; /* Adjust title size for smaller screens */
+          }
+      }
+  </style>
+  </head>
+  <body>
+    <div class="overlay"></div>
+    <div class="container d-flex flex-column justify-content-center align-items-center position-relative z-index-2 vh-100">
+      <h1 class="mt-5 text-center fade-in">Neural Network Trainer</h1>
+
+      <!-- Flash messages -->
+      {% with messages = get_flashed_messages() %} {% if messages %}
+      <div class="alert alert-warning fade-in mt-3">
+        {% for message in messages %}
+        <p>{{ message }}</p>
+        {% endfor %}
+      </div>
+      {% endif %} {% endwith %}
+
+      <!-- Upload form -->
+      <div class="card mt-4 fade-in card-hover" style="width: 100%; max-width: 500px;">
+        <div class="card-body">
+          <h5 class="card-title">Upload Dataset</h5>
+          <form
+            action="/MDSupPrjt/upload"
+            method="POST"
+            enctype="multipart/form-data"
+          >
+            <div class="form-group">
+              <label for="file">Select a file:</label>
+              <input
+                type="file"
+                class="form-control"
+                id="file"
+                name="file"
+                required
+              />
+            </div>
+            <button type="submit" class="btn btn-hover">
+              Upload
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Button to show/hide uploaded files -->
+      <div class="text-center mt-5 fade-in">
+        <button id="toggle-files" class="btn btn-hover">
+          Show Uploaded Files
+        </button>
+      </div>
+
+      <!-- List of uploaded files (initially hidden) -->
+      <div id="uploaded-files" class="mt-5 fade-in" style="display: none; width: 100%; max-width: 500px;">
+        <h2 class="text-center">Uploaded Files</h2>
+        <ul class="list-group">
+          {% for file in files %}
+          <li
+            class="list-group-item d-flex justify-content-between align-items-center"
+          >
+            {{ file }}
+            <div>
+              <a
+                href="{{ url_for('model_config', file_name=file) }}"
+                class="btn btn-primary btn-sm btn-hover"
+                >Configure</a
+              >
+              <a
+                href="{{ url_for('view_training_history', file_name=file) }}"
+                class="btn btn-warning btn-sm btn-hover"
+                >View Training History</a
+              >
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.6/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- JavaScript to toggle file visibility -->
+    <script>
+      document
+        .getElementById("toggle-files")
+        .addEventListener("click", function () {
+          var fileSection = document.getElementById("uploaded-files");
+          var buttonText = this.textContent;
+
+          // Toggle the visibility of the file section
+          if (fileSection.style.display === "none") {
+            fileSection.style.display = "block";
+            this.textContent = "Hide Uploaded Files";
+          } else {
+            fileSection.style.display = "none";
+            this.textContent = "Show Uploaded Files";
+          }
+        });
+    </script>
+  </body>
+</html>

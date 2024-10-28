@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualization</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5">Visualisation des Données</h1>
+        
+        <!-- Display the data as a table -->
+        <div class="table-responsive">
+            {{ data | safe }}
+        </div>
+
+        <!-- Display the plot -->
+        <h2 class="mt-5">Graphique :</h2>
+        <img src="data:image/png;base64,{{ plot_url }}" alt="Plot">
+        
+        <a href="{{ url_for('index') }}" class="btn btn-primary mt-5">Retour à l'accueil</a>
+    </div>
+</body>
+</html>

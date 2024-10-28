@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Training Model</title>
+</head>
+<body>
+    <h1>Training Configuration</h1>
+
+    <h2>File Name: {{ file_name }}</h2>
+    <h3>Layers Configuration:</h3>
+    <ul>
+        {% for layer in layers_config %}
+            <li>Layer {{ loop.index }}: {{ layer.neurons }} neurons, Activation: {{ layer.activation }}, Type: {{ layer.activation_type }}</li>
+        {% endfor %}
+    </ul>
+
+    <!-- Add your training logic here -->
+</body>
+</html>

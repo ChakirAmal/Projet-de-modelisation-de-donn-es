@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Neural Network Trainer - Configuration</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <style>
+      body {
+        font-family: 'Arial', sans-serif; /* Clean and modern font */
+        background-color: #f0f4f8; /* Soft background color */
+        margin: 0;
+        padding: 20px;
+      }
+    
+      h1 {
+        text-align: center;
+        color: #4B8DFF; /* Title color */
+        margin-bottom: 20px;
+        font-size: 2.5em; /* Larger title size */
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+      }
+    
+      .layer {
+        border: 2px solid #4B8DFF; /* Soft blue border */
+        border-radius: 10px;
+        width: 100%;
+        height: auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin: 10px 0;
+        padding: 20px; /* Increased padding */
+        color: #4B8DFF; /* Text color matching the border */
+        background-color: #ffffff; /* White background for contrast */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow */
+        transition: transform 0.2s; /* Animation effect */
+      }
+    
+      .layer:hover {
+        transform: scale(1.02); /* Slight zoom effect on hover */
+      }
+    
+      .layer-container {
+        margin: 20px 0;
+      }
+    
+      #submit-button,
+      #train-button {
+        display: none;
+      }
+    
+      #network-visualization {
+        margin-top: 20px;
+      }
+    
+      .disabled-feature {
+        color: grey;
+        pointer-events: none;
+        opacity: 0.6;
+      }
+    
+      /* Button styles */
+      button {
+        background-color: #4B8DFF; /* Button color */
+        color: white; /* Text color */
+        border: none;
+        border-radius: 5px; /* Rounded corners */
+        padding: 10px 20px; /* Padding for button */
+        cursor: pointer; /* Pointer cursor */
+        font-size: 1em; /* Button text size */
+        transition: background-color 0.3s, transform 0.2s; /* Smooth transition */
+        margin: 10px; /* Space between buttons */
+      }
+    
+      button:hover {
+        background-color: #007BFF; /* Darker shade on hover */
+        transform: scale(1.05); /* Slight zoom on hover */
+      }
+    
+      /* Checkbox styling */
+      input[type="checkbox"] {
+        margin-right: 10px; /* Space between checkbox and label */
+        appearance: none; /* Remove default styling */
+        width: 20px; /* Custom width */
+        height: 20px; /* Custom height */
+        border: 2px solid #4B8DFF; /* Matching border */
+        border-radius: 5px; /* Rounded corners */
+        background-color: white; /* Background color */
+        cursor: pointer; /* Pointer cursor on hover */
+        position: relative; /* Positioning for pseudo-elements */
+        transition: background-color 0.3s, border-color 0.3s; /* Smooth transition */
+      }
+    
+      input[type="checkbox"]:checked {
+        background-color: #4B8DFF; /* Change background on check */
+        border-color: #007BFF; /* Darker border on check */
+      }
+    
+      input[type="checkbox"]:checked::after {
+        content: "✓"; /* Checkmark symbol */
+        color: white; /* Checkmark color */
+        position: absolute;
+        top: 50%; /* Center vertically */
+        left: 50%; /* Center horizontally */
+        transform: translate(-50%, -50%); /* Center the checkmark */
+        font-size: 16px; /* Checkmark size */
+      }
+    
+      label {
+        display: inline-flex; /* Align label with checkbox */
+        align-items: center; /* Center checkbox and text vertically */
+        font-weight: bold; /* Bold text for emphasis */
+        color: #333; /* Dark text for contrast */
+      }
+    
+      /* Footer styles */
+      footer {
+        text-align: center; /* Centered footer text */
+        margin-top: 40px; /* Space above footer */
+        color: #555; /* Footer text color */
+      }
+    </style>
+    
+    
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="mt-5 text-center">Configuration du Réseau de Neurones</h1>
+
+      <!-- Form to input model configurations -->
+      <form id="nn-config-form">
+        <!-- Select X (features) and Y (target) -->
+        <div class="form-group">
+          <h5>Sélectionner les caractéristiques (X) et la cible (Y):</h5>
+
+          <label for="target">Sélectionner la cible (Y) :</label>
+          <div id="y-feature">
+            <!-- Radio buttons for Y feature will be injected here -->
+        </div>
+
+          <label for="input_features"
+            >Sélectionner les caractéristiques d'entrée (X) :</label
+          >
+          <div id="x-features">
+            <!-- Radio buttons for Y feature will be injected here -->
+          </div>
+        </div>
+
+        <!-- Optimizer, Loss Function, Epochs -->
+        <div class="form-group">
+          <label for="optimizer">Sélectionner l'optimiseur :</label>
+          <select class="form-control" id="optimizer" name="optimizer" required>
+            <option value="adam">Adam</option>
+            <option value="sgd">SGD</option>
+            <option value="rmsprop">RMSprop</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="loss_function">Sélectionner la fonction de perte :</label>
+          <select
+            class="form-control"
+            id="loss_function"
+            name="loss_function"
+            required
+          >
+            <option value="binary_crossentropy">binary_crossentropy</option>
+            <option value="mse">mean_squared_error (MSE)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="epochs">Nombre d'époques :</label>
+          <input
+            type="number"
+            class="form-control"
+            id="epochs"
+            name="epochs"
+            min="1"
+            required
+          />
+        </div>
+
+        <!-- Problem Type -->
+        <div class="form-group">
+          <label for="problem_type">Type de problème :</label>
+          <select
+            class="form-control"
+            id="problem_type"
+            name="problem_type"
+            required
+            onchange="updateBoth()"
+            >
+            <option value="regression">Régression</option>
+            <option value="classification">Classification</option>
+
+          </select>
+          <div id="num_class_container" style="display: none;">
+            <label for="num_class">Number of Classes:</label>
+            <input
+                type="number"
+                class="form-control"
+                id="num_class"
+                name="num_class"
+                min="2"
+                placeholder="Enter number of classes"
+            />
+        </div>
+        <script>
+          function updateBoth() {
+        updateActivationFunctions();
+        updateForm();
+    }
+          function updateForm() {
+              const problemType = document.getElementById("problem_type").value;
+              const numClassContainer = document.getElementById("num_class_container");
+          
+              if (problemType === "classification") {
+                  numClassContainer.style.display = "block";
+              } else {
+                  numClassContainer.style.display = "none";
+              }
+          }
+          </script>
+        <!-- Number of Layers -->
+        <div class="form-group">
+          <label for="layers">Nombre de couches :</label>
+          <input
+            type="number"
+            class="form-control"
+            id="layers"
+            name="layers"
+            min="1"
+            required
+            onchange="generateLayerConfigs()"
+          />
+        </div>
+
+        <!-- Dynamic Layer Configuration -->
+        <div class="layer-container" id="layer-config"></div>
+
+        <!-- Buttons -->
+        <button
+          type="button"
+          id="submit-button"
+          class="btn btn-primary"
+          onclick="visualizeData()"
+        >
+          Visualiser mes données
+        </button>
+        <button
+          type="button"
+          id="train-button"
+          class="btn btn-success"
+          onclick="trainModel()"
+        >
+          Entraîner le modèle
+        </button>
+      </form>
+
+      <!-- Network Visualization -->
+      <div id="network-visualization"></div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.6/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <!-- JavaScript for dynamic layer addition and AJAX submission -->
+    <script>
+            let datasetColumns = {{ columns | tojson }};
+            console.log("Columns loaded: ", datasetColumns);  // For debugging
+
+            // Keep track of the previously selected Y feature to restore it to X
+            let previousYFeature = null;
+
+            // Populate radios for selecting the Y feature and checkboxes for selecting X features
+            $(document).ready(function () {
+                const yFeatureContainer = document.getElementById("y-feature");
+                const xFeaturesContainer = document.getElementById("x-features");
+
+                datasetColumns.forEach((column, index) => {
+                    // Create radio button for the target (Y) feature
+                    const radio = document.createElement("div");
+                    radio.innerHTML = `
+                        <input type="radio" id="y_${index}" name="y_feature" value="${column}" required>
+                        <label for="y_${index}">${column}</label>
+                    `;
+                    yFeatureContainer.appendChild(radio);
+
+                    // Create checkbox for each input (X) feature
+                    const checkbox = document.createElement("div");
+                    checkbox.innerHTML = `
+                        <input type="checkbox" id="x_${index}" name="x_features" value="${column}">
+                        <label for="x_${index}">${column}</label>
+                    `;
+                    xFeaturesContainer.appendChild(checkbox);
+                });
+
+                // Event listener for Y selection to visually indicate and disable corresponding X feature
+             // Event listener for Y selection to disable the corresponding X feature without disabling the Y radio button
+      $("input[name='y_feature']").change(function () {
+          const selectedY = $(this).val();
+
+          // Re-enable the previously disabled X feature, if any
+          if (previousYFeature) {
+              $(`input[name='x_features'][value='${previousYFeature}']`).prop('disabled', false);
+              $(`label[for='x_${previousYFeature}']`).removeClass('disabled-feature');
+          }
+
+          // Disable the corresponding X feature for the selected Y feature
+          $(`input[name='x_features'][value='${selectedY}']`).prop('checked', false).prop('disabled', true);
+          $(`label[for='x_${selectedY}']`).addClass('disabled-feature');
+
+          // Automatically select the Y radio button
+          $(this).prop('checked', true);
+
+          // Update the previously selected Y feature
+          previousYFeature = selectedY;
+      });
+      });
+
+            // Populate activation functions based on problem type
+            function updateActivationFunctions() {
+              const problemType = document.getElementById("problem_type").value;
+              const activationFunctions = {
+                regression: ["linear", "relu"],
+                classification: ["sigmoid", "softmax", "tanh"],
+              };
+              const activationDropdown = document.querySelectorAll(".activation-select");
+
+              activationDropdown.forEach((dropdown) => {
+                dropdown.innerHTML = "";
+                activationFunctions[problemType].forEach((func) => {
+                  const option = document.createElement("option");
+                  option.value = func;
+                  option.textContent = func.charAt(0).toUpperCase() + func.slice(1);
+                  dropdown.appendChild(option);
+                });
+              });
+            }
+
+            // Generate layer configuration dynamically
+            function generateLayerConfigs() {
+              const layerCount = document.getElementById("layers").value;
+              const layerConfigContainer = document.getElementById("layer-config");
+              layerConfigContainer.innerHTML = ""; // Clear previous configurations
+
+              for (let i = 1; i <= layerCount; i++) {
+                const layerDiv = document.createElement('div');
+                layerDiv.classList.add('layer');
+
+                layerDiv.innerHTML = `
+                    <h5>Configuration de la couche ${i}</h5>
+                    <label for="neurons_${i}">Neurones dans la couche ${i}:</label>
+                    <input type="number" class="form-control" id="neurons_${i}" name="neurons_${i}" required>
+                `;
+
+                if (i < layerCount) { 
+                    layerDiv.innerHTML += `
+                        <label for="activation_${i}">Fonction d'activation :</label>
+                        <select class="form-control activation-select" id="activation_${i}" name="activation_${i}" required>
+                            <!-- Options will be populated based on problem type -->
+                        </select>
+                    `;
+                }
+
+                layerConfigContainer.appendChild(layerDiv); // Add to the container
+            }
+
+              updateActivationFunctions(); // Populate activation functions after generating layers
+              document.getElementById("submit-button").style.display = "block";
+              document.getElementById("train-button").style.display = "block";
+            }
+            function visualizeData() {
+              // Log the dataset to check its structure
+           
+              // Get the selected features (X) and the target (Y)
+              const selectedFeatures = $('input[name="x_features"]:checked').map(function () {
+                  return $(this).val();
+              }).get();
+              console.log("Selected Features:", selectedFeatures); // Debugging line
+
+              const yFeature = $('input[name="y_feature"]:checked').val();
+
+              console.log("Selected Y Feature:", yFeature); // Debugging line
+              console.log("Dataset Columns:", datasetColumns); // Check if this logs your dataset correctly
+
+              // Validate that at least one feature and the target are selected
+              if (selectedFeatures.length === 0 || !yFeature) {
+                  alert("Please select at least one feature and a target (Y) feature.");
+                  return;
+              }
+
+              // Check if datasetColumns is an array of objects
+              if (!Array.isArray(datasetColumns) || datasetColumns.length === 0 || typeof datasetColumns[0] !== 'object') {
+                  console.error("datasetColumns is not structured correctly.");
+                  return;
+              }
+              // Assuming datasetColumns is accessible and holds your dataset
+              const visualizationData = datasetColumns.map((row) => {
+                const rowData = {};
+                selectedFeatures.forEach((feature) => {
+                    if (row[feature] !== undefined) { // Check if the feature exists in the row
+                        rowData[feature] = row[feature];
+                    }
+                });
+
+                rowData.target = row[yFeature]; // Ensure yFeature is defined correctly
+
+
+                return rowData;
+            }).filter(row => row.target !== undefined);
+
+
+              console.log("Visualization Data:", visualizationData); // Debugging line
+
+              // Create a table for visualization
+              const tableHeader = `
+                  <tr>
+                      ${selectedFeatures.map(feature => `<th>${feature}</th>`).join('')}
+                      <th>${yFeature}</th>
+                  </tr>
+              `;
+
+              const tableRows = visualizationData.map(row => `
+                <tr>
+                    ${selectedFeatures.map(feature => `<td>${row[feature]}</td>`).join('')}
+                    <td>${row.target}</td>
+                </tr>
+            `).join('');
+
+
+              // Generate HTML for the table
+              const tableHtml = `
+                  <table class="table table-bordered">
+                      <thead>${tableHeader}</thead>
+                      <tbody>${tableRows}</tbody>
+                  </table>
+              `;
+
+              // Display the table in the network visualization div
+              $("#network-visualization").html(tableHtml);
+          }
+
+
+            // Train the model (called when 'Entraîner le modèle' is clicked)
+            function trainModel() {
+              // Get the selected Y feature
+              const yFeature = $('input[name="y_feature"]:checked').val();
+
+              // Validate if Y feature is selected
+              if (!yFeature) {
+                  alert("Please select a Y feature (target) before training the model.");
+                  return;  // Stop the function if no Y feature is selected
+              }
+
+              // Collect all the form data into a JSON object
+              const formData = {
+                  dataset: '{{ file_name }}',  // Dataset name from the template
+                  features: $('input[name="x_features"]:checked').map(function () {
+                      return $(this).val();
+                  }).get(),
+                  label: yFeature,  // Y feature selected by the user
+                  problem_type: $('#problem_type').val(),
+                  optimizer: $('#optimizer').val(),
+                  loss_function: $('#loss_function').val(),
+                  num_class: $('#problem_type').val() === 'classification' ? $('#num_class').val() : null,
+                  epochs: $('#epochs').val(),
+                  layers: []
+              };
+
+              // Collect layer configurations
+              const layerCount = $('#layers').val();
+              for (let i = 1; i <= layerCount; i++) {
+                  formData.layers.push({
+                      neurons: $(`#neurons_${i}`).val(),
+                      activation: $(`#activation_${i}`).val()
+                  });
+              }
+
+              // Send data to the backend for model training
+             
+              $.ajax({
+                  url: "/MDSupPrjt/train_model_route",
+                  method: "POST",
+                  contentType: "application/json",
+                  data: JSON.stringify(formData),
+                  success: function (response) {
+                      alert(response.message);
+                  },
+                  error: function (error) {
+                      console.error("Error:", error);
+                      alert('Model training failed!');
+                  }
+              });
+            }
+            // Assuming you're using jQuery to handle the response
+            $.post('/MDSupPrjt/train_model_route', data, function(response) {
+                if (response.downloads) {
+                    $('#downloadLinks').html(`
+                        <a href="${response.downloads.model}" download>Download Model</a><br>
+                        <a href="${response.downloads.history}" download>Download History</a>
+                    `);
+                }
+            });
+
+    </script>
+ 
+  </body>
+</html>

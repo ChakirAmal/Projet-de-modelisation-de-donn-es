@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Neural Network Trainer - Configuration</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <style>
+      body {
+          background-color: #f8f9fa; /* Matte white background */
+          color: #333333; /* Darker text for better contrast */
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      .layer {
+          border: 2px solid #007bff; /* Soft blue border */
+          border-radius: 10px;
+          width: 100%;
+          height: auto;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          margin: 10px 0;
+          padding: 10px;
+          color: #007bff; /* Soft blue text */
+          background-color: rgba(255, 255, 255, 0.9); /* Slightly transparent white background */
+          box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2); /* Light blue shadow */
+      }
+
+      .layer-container {
+          margin: 20px 0;
+      }
+
+      #submit-button {
+          display: none;
+      }
+
+      .modal-content {
+          border-radius: 1rem; /* Rounded corners for modal */
+      }
+
+      .modal-header {
+          background-color: #007bff; /* Soft blue header */
+          color: white;
+      }
+
+      .modal-footer {
+          border-top: none; /* Remove border on footer */
+      }
+  </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="mt-5 text-center">Configuration du Réseau de Neurones</h1>
+
+      <!-- Form to input model configurations -->
+      <form id="nn-config-form">
+        <div class="form-group">
+          <label for="problem_type">Type de problème :</label>
+          <select
+            class="form-control"
+            id="problem_type"
+            name="problem_type"
+            required
+            onchange="updateActivationFunctions()"
+          >
+            <option value="regression">Régression</option>
+            <option value="classification">Classification</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="layers">Nombre de couches :</label>
+          <input
+            type="number"
+            class="form-control"
+            id="layers"
+            name="layers"
+            min="1"
+            required
+            onchange="generateLayerConfigs()"
+          />
+        </div>
+
+        <div class="layer-container" id="layer-config">
+          <!-- Layers configuration will be added here dynamically -->
+        </div>
+
+        <button type="submit" id="submit-button" class="btn btn-primary">
+          Visualiser les Couches
+        </button>
+      </form>
+
+      <!-- Network Visualization -->
+      <div id="network-visualization"></div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.6/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <!-- JavaScript for dynamic layer addition and AJAX submission -->
+    <script>
+      function updateActivationFunctions() {
+        const problemType = document.getElementById("problem_type").value;
+        const activationFunctions = {
+          regression: ["linear", "relu"],
+          classification: ["sigmoid", "softmax", "tanh"],
+        };
+        const activationDropdown =
+          document.querySelectorAll(".activation-select");
+
+        activationDropdown.forEach((dropdown) => {
+          dropdown.innerHTML = "";
+          activationFunctions[problemType].forEach((func) => {
+            const option = document.createElement("option");
+            option.value = func;
+            option.textContent = func.charAt(0).toUpperCase() + func.slice(1);
+            dropdown.appendChild(option);
+          });
+        });
+      }
+
+      function generateLayerConfigs() {
+        const layerCount = document.getElementById("layers").value;
+        const layerConfigContainer = document.getElementById("layer-config");
+        layerConfigContainer.innerHTML = "";
+
+        for (let i = 1; i <= layerCount; i++) {
+          const layerDiv = document.createElement("div");
+          layerDiv.classList.add("layer");
+
+          layerDiv.innerHTML = `
+                    <h5>Configuration de la couche ${i}</h5>
+                    <label for="neurons_${i}">Neurones dans la couche ${i}:</label>
+                    <input type="number" class="form-control" id="neurons_${i}" name="neurons_${i}" required>
+                `;
+
+          if (i < 3) {
+            layerDiv.innerHTML += `
+                        <label for="activation_${i}">Fonction d'activation :</label>
+                        <select class="form-control activation-select" id="activation_${i}" name="activation_${i}" required>
+                        </select>
+                    `;
+          }
+
+          layerConfigContainer.appendChild(layerDiv);
+        }
+
+        updateActivationFunctions();
+
+        document.getElementById("submit-button").style.display = "block";
+      }
+
+      // Submit form via AJAX
+      $("#nn-config-form").on("submit", function (event) {
+        event.preventDefault();
+
+        const formData = $(this).serialize(); // Serialize the form data
+
+        $.ajax({
+          url: "/MDSupPrjt/generate_network",
+          method: "POST",
+          data: formData,
+          success: function (response) {
+            $("#network-visualization").html(
+              `<img src="data:image/png;base64,${response.image_data}" alt="Network Visualization" />`
+            );
+          },
+          error: function (error) {
+            console.error("Error:", error);
+          },
+        });
+      });
+    </script>
+  </body>
+</html>
