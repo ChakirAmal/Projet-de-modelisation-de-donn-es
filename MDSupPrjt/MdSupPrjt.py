@@ -152,7 +152,7 @@ def train_model_route():
     optimizer = training_data.get('optimizer')
     loss_function = training_data.get('loss_function')
     epochs = int(training_data.get('epochs'))
-    num_class=int(training_data.get('num_class'))
+    num_class = int(training_data.get('num_class', 1)) if training_data.get('num_class') is not None else None
     layer_configurations = training_data.get('layers')
     network_type = training_data.get('network_type')
     # Load the dataset
@@ -238,6 +238,36 @@ def download_file(filename):
     temp_folder = 'model_hist'  # Make sure this folder exists and contains the model files
     return send_from_directory(temp_folder, filename, as_attachment=True)
 
+@app.route('/MDSupPrjt/download_model')
+def download_model():
+    base_name = request.args.get('dataset_name')
+
+    # Construct the path to the model file by stepping back two directories
+    model_file_path = os.path.abspath(os.path.join(  'model_hist', f'{base_name}_model.keras'))
+    print("model_file_path:", model_file_path)
+
+    # Check if the file exists
+    if os.path.exists(model_file_path):
+        return send_from_directory(os.path.abspath(os.path.join( 'model_hist')), f'{base_name}_model.keras', as_attachment=True)
+    else:
+        # Send a 404 response if file not found
+        return jsonify({'error': 'Model file not found.'}), 404
     
+@app.route('/MDSupPrjt/get_data', methods=['POST'])
+def get_data():
+    data = request.get_json()
+    file_name = data.get('file_name')  # Pass the dataset file name from the client
+    selected_columns = data.get('columns')  # List of selected columns
+
+    file_path = os.path.join('upload', file_name)
+    if os.path.exists(file_path):
+        # Load the dataset and filter by selected columns
+        df = pd.read_csv(file_path)
+        filtered_df = df[selected_columns]  # Keep only the selected columns
+        return jsonify(filtered_df.to_dict(orient='records'))  # Convert to list of dicts
+    else:
+        return jsonify({'error': 'File not found'}), 404
+
+
 if __name__ == '__main__':
     app.run(debug=True)

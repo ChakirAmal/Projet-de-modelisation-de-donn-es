@@ -265,6 +265,7 @@
 
       <!-- Network Visualization -->
       <div id="network-visualization"></div>
+      <div class="pagination"></div>
     </div>
 
     <!-- Bootstrap JS and dependencies -->
@@ -275,7 +276,92 @@
     <!-- JavaScript for dynamic layer addition and AJAX submission -->
     <script>
             let datasetColumns = {{ columns | tojson }};
+            let visualizationData = [];  // Array to hold filtered data
+
             console.log("Columns loaded: ", datasetColumns);  // For debugging
+            $(document).ready(function () {
+              // Code for setting up feature selection UI goes here
+            });
+
+                  
+            function visualizeData() {
+                const selectedFeatures = $('input[name="x_features"]:checked').map(function () {
+                    return $(this).val();
+                }).get();
+                const yFeature = $('input[name="y_feature"]:checked').val();
+
+                if (selectedFeatures.length === 0 || !yFeature) {
+                    alert("Please select at least one feature and a target (Y) feature.");
+                    return;
+                }
+
+                const file_name = '{{ file_name }}';  // Assuming you pass the dataset file name from Flask
+
+                $.ajax({
+                    url: '/MDSupPrjt/get_data',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        file_name: file_name,
+                        columns: [...selectedFeatures, yFeature]  // Combine X features and Y target
+                    }),
+                    success: function (data) {
+                        if (data.error) {
+                            alert(data.error);
+                        } else {
+                            visualizationData = data;
+                            displayTable(1);  // Show first page of data
+                        }
+                    },
+                    error: function (error) {
+                        console.error("Error fetching data:", error);
+                        alert('Failed to load data.');
+                    }
+                });
+            }
+
+            function displayTable(page) {
+              const rowsPerPage = 20;
+              const start = (page - 1) * rowsPerPage;
+              const end = start + rowsPerPage;
+              const paginatedData = visualizationData.slice(start, end);
+
+              const headers = Object.keys(paginatedData[0] || {}).map(col => `<th>${col}</th>`).join('');
+              const rows = paginatedData.map(row => {
+                  const cells = Object.values(row).map(cell => `<td>${cell}</td>`).join('');
+                  return `<tr>${cells}</tr>`;
+              }).join('');
+
+              const tableHtml = `<table class="table table-bordered"><thead><tr>${headers}</tr></thead><tbody>${rows}</tbody></table>`;
+              $("#network-visualization").html(tableHtml);
+
+              updatePaginationControls(page);
+          }
+
+          function updatePaginationControls(currentPage) {
+              const rowsPerPage = 20;
+              const totalPages = Math.ceil(visualizationData.length / rowsPerPage);
+              let paginationHtml = '';
+
+              // "Previous" button
+              paginationHtml += `
+                  <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                      <a class="page-link" href="#" onclick="displayTable(${currentPage - 1})">Previous</a>
+                  </li>
+              `;
+
+              // Display current page out of total pages
+              paginationHtml += `<li class="page-item"><span class="page-link">Page ${currentPage} of ${totalPages}</span></li>`;
+
+              // "Next" button
+              paginationHtml += `
+                  <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                      <a class="page-link" href="#" onclick="displayTable(${currentPage + 1})">Next</a>
+                  </li>
+              `;
+
+              $(".pagination").html(`<ul class="pagination">${paginationHtml}</ul>`);
+          }
 
             // Keep track of the previously selected Y feature to restore it to X
             let previousYFeature = null;
@@ -378,76 +464,76 @@
               document.getElementById("submit-button").style.display = "block";
               document.getElementById("train-button").style.display = "block";
             }
-            function visualizeData() {
-              // Log the dataset to check its structure
+          //   function visualizeData() {
+          //     // Log the dataset to check its structure
            
-              // Get the selected features (X) and the target (Y)
-              const selectedFeatures = $('input[name="x_features"]:checked').map(function () {
-                  return $(this).val();
-              }).get();
-              console.log("Selected Features:", selectedFeatures); // Debugging line
+          //     // Get the selected features (X) and the target (Y)
+          //     const selectedFeatures = $('input[name="x_features"]:checked').map(function () {
+          //         return $(this).val();
+          //     }).get();
+          //     console.log("Selected Features:", selectedFeatures); // Debugging line
 
-              const yFeature = $('input[name="y_feature"]:checked').val();
+          //     const yFeature = $('input[name="y_feature"]:checked').val();
 
-              console.log("Selected Y Feature:", yFeature); // Debugging line
-              console.log("Dataset Columns:", datasetColumns); // Check if this logs your dataset correctly
+          //     console.log("Selected Y Feature:", yFeature); // Debugging line
+          //     console.log("Dataset Columns:", datasetColumns); // Check if this logs your dataset correctly
 
-              // Validate that at least one feature and the target are selected
-              if (selectedFeatures.length === 0 || !yFeature) {
-                  alert("Please select at least one feature and a target (Y) feature.");
-                  return;
-              }
+          //     // Validate that at least one feature and the target are selected
+          //     if (selectedFeatures.length === 0 || !yFeature) {
+          //         alert("Please select at least one feature and a target (Y) feature.");
+          //         return;
+          //     }
 
-              // Check if datasetColumns is an array of objects
-              if (!Array.isArray(datasetColumns) || datasetColumns.length === 0 || typeof datasetColumns[0] !== 'object') {
-                  console.error("datasetColumns is not structured correctly.");
-                  return;
-              }
-              // Assuming datasetColumns is accessible and holds your dataset
-              const visualizationData = datasetColumns.map((row) => {
-                const rowData = {};
-                selectedFeatures.forEach((feature) => {
-                    if (row[feature] !== undefined) { // Check if the feature exists in the row
-                        rowData[feature] = row[feature];
-                    }
-                });
+          //     // Check if datasetColumns is an array of objects
+          //     if (!Array.isArray(datasetColumns) || datasetColumns.length === 0 || typeof datasetColumns[0] !== 'object') {
+          //         console.error("datasetColumns is not structured correctly.");
+          //         return;
+          //     }
+          //     // Assuming datasetColumns is accessible and holds your dataset
+          //     const visualizationData = datasetColumns.map((row) => {
+          //       const rowData = {};
+          //       selectedFeatures.forEach((feature) => {
+          //           if (row[feature] !== undefined) { // Check if the feature exists in the row
+          //               rowData[feature] = row[feature];
+          //           }
+          //       });
 
-                rowData.target = row[yFeature]; // Ensure yFeature is defined correctly
-
-
-                return rowData;
-            }).filter(row => row.target !== undefined);
+          //       rowData.target = row[yFeature]; // Ensure yFeature is defined correctly
 
 
-              console.log("Visualization Data:", visualizationData); // Debugging line
-
-              // Create a table for visualization
-              const tableHeader = `
-                  <tr>
-                      ${selectedFeatures.map(feature => `<th>${feature}</th>`).join('')}
-                      <th>${yFeature}</th>
-                  </tr>
-              `;
-
-              const tableRows = visualizationData.map(row => `
-                <tr>
-                    ${selectedFeatures.map(feature => `<td>${row[feature]}</td>`).join('')}
-                    <td>${row.target}</td>
-                </tr>
-            `).join('');
+          //       return rowData;
+          //   }).filter(row => row.target !== undefined);
 
 
-              // Generate HTML for the table
-              const tableHtml = `
-                  <table class="table table-bordered">
-                      <thead>${tableHeader}</thead>
-                      <tbody>${tableRows}</tbody>
-                  </table>
-              `;
+          //     console.log("Visualization Data:", visualizationData); // Debugging line
 
-              // Display the table in the network visualization div
-              $("#network-visualization").html(tableHtml);
-          }
+          //     // Create a table for visualization
+          //     const tableHeader = `
+          //         <tr>
+          //             ${selectedFeatures.map(feature => `<th>${feature}</th>`).join('')}
+          //             <th>${yFeature}</th>
+          //         </tr>
+          //     `;
+
+          //     const tableRows = visualizationData.map(row => `
+          //       <tr>
+          //           ${selectedFeatures.map(feature => `<td>${row[feature]}</td>`).join('')}
+          //           <td>${row.target}</td>
+          //       </tr>
+          //   `).join('');
+
+
+          //     // Generate HTML for the table
+          //     const tableHtml = `
+          //         <table class="table table-bordered">
+          //             <thead>${tableHeader}</thead>
+          //             <tbody>${tableRows}</tbody>
+          //         </table>
+          //     `;
+
+          //     // Display the table in the network visualization div
+          //     $("#network-visualization").html(tableHtml);
+          // }
 
 
             // Train the model (called when 'Entraîner le modèle' is clicked)

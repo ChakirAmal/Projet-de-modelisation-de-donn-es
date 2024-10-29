@@ -1,64 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Training History</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
     <style>
-        body {
-            background-color: #f8f9fa; /* Matte white background */
-            color: #333333; /* Dark text for contrast */
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        h1 {
-            color: #007bff; /* Soft blue color for the heading */
-            text-align: center;
-            margin-top: 50px;
-        }
-
-        .image-container {
-            display: flex;
-            justify-content: center;
-            margin-top: 30px;
-        }
-
-        img {
-            max-width: 100%;
-            height: auto;
-            border: 2px solid #007bff; /* Soft blue border around the image */
-            border-radius: 10px; /* Rounded corners */
-            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2); /* Light blue shadow */
-        }
-
-        .btn-save {
-            display: block;
-            margin: 20px auto;
-            background-color: #007bff; /* Soft blue */
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            transition: background-color 0.3s;
-        }
-
-        .btn-save:hover {
-            background-color: #0056b3; /* Darker blue on hover */
-        }
+      body {
+        background-color: #f8f9fa;
+        color: #333333;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+      h1 {
+        color: #007bff;
+        text-align: center;
+        margin-top: 50px;
+      }
+      .image-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 30px;
+      }
+      img {
+        max-width: 100%;
+        height: auto;
+        border: 2px solid #007bff;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
+      }
+      .btn-save {
+        display: block;
+        margin: 20px auto;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+      }
+      .btn-save:hover {
+        background-color: #0056b3;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <h1>Training History</h1>
     <div class="image-container">
-        <img src="data:image/png;base64,{{ plot_url }}" alt="Training History">
+      <img src="data:image/png;base64,{{ plot_url }}" alt="Training History" />
     </div>
-    <button class="btn-save" id="save-model-button" onclick="downloadModel('model_hist\\diabetes.csv_model.keras')">Save Model</button>
+    <button class="btn-save" id="save-model-button">Save Model</button>
 
     <script>
-        function downloadModel(filename) {
-            window.location.href = `/Downloads/${filename}`;
-        }
+      document
+        .getElementById("save-model-button")
+        .addEventListener("click", function () {
+          // Extract dataset name from the URL
+          const datasetName = window.location.pathname.split("/").pop();
+          console.log("datasetName :", datasetName);
+
+          // Redirect to download link
+          window.location.href = `/MDSupPrjt/download_model?dataset_name=${datasetName}`;
+        });
     </script>
-</body>
+  </body>
 </html>
